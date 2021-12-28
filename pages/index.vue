@@ -19,9 +19,15 @@
     </v-col>
     <v-col cols="4">
       <v-card>
-        <v-card-title primary-title> Notifications </v-card-title>
+        <v-card-title primary-title> Notifications - {{notifhist.length}} </v-card-title>
         <v-divider></v-divider>
-        <v-card-text> {{ notifhist }}</v-card-text>
+        <v-card-text>
+          <v-card class="ma-2" v-for="(notif, i) in notifhist" :key="i">
+            <v-card-text>
+              {{notif}}
+            </v-card-text>
+          </v-card>
+        </v-card-text>
       </v-card>
     </v-col>
     <v-col cols="4">
@@ -62,7 +68,8 @@ export default {
       })
       .configureLogging(signalR.LogLevel.Information)
       .build();
-    this.notifconn.on("notify", (message) => this.notificationHandler(message));
+    this.notifconn.on("get-notification-msgs", (message) => this.notificationHandler(message));
+    this.notifconn.on("get-notification-msg", (message) => this.notificationHandlerSingle(message));
     this.notifconn.on("user-login", (user) => this.userLoginHandler(user));
     //chat
     this.chatConn = new signalR.HubConnectionBuilder()
@@ -95,6 +102,10 @@ export default {
     notificationHandler(payload) {
       this.notifhist = JSON.parse(payload);
       console.log(payload);
+    },
+     notificationHandlerSingle(payload) {
+      this.notifhist.push(JSON.parse(payload));
+      alert("New InApp Notification Recieved!")
     },
     userLoginHandler(payload) {
       alert(user + "logged in");
